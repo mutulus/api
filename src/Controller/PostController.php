@@ -34,4 +34,17 @@ class PostController extends AbstractController
             ['content-type'=> 'application/json']
         );
     }
+    #[Route('/api/posts/{id}',name: 'api_post_show',methods: ['GET'])]
+    public function show(PostRepository $postRepository, SerializerInterface $serializer): Response
+    {
+        // Rechercher tous les posts dans le BDD
+        $post = $postRepository->find('id');
+
+        // Sérialiser le tableau de posts en json
+        $postJson = $serializer->serialize($post, 'json');
+
+        return new Response($postJson,Response::HTTP_OK,
+            ['content-type'=> 'application/json']
+        );
+    }
 }
