@@ -66,4 +66,15 @@ class PostController extends AbstractController
         return new Response($postJson,Response::HTTP_CREATED,["content-type"=>"application/json"]);
 
     }
+    #[Route('/posts/{id}',name: 'api_post_delete',requirements: ['id'=>'\d+'],methods: ['DELETE'])]
+    public function delete(\Symfony\Component\HttpFoundation\Request $request,SerializerInterface $serializer,EntityManagerInterface $entityManager,int $id): Response
+    {
+        $post=$entityManager->find(Post::class,$id);
+        $entityManager->remove($post);
+        $entityManager->flush();
+        // Génerer la réponse
+
+        return new Response(null,204,["content-type"=>"application/json"]);
+
+    }
 }
