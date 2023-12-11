@@ -82,7 +82,7 @@ class PostController extends AbstractController
     {
         $bodyRequest=$request->getContent();
         $post=$entityManager->find(Post::class,$id);
-        $serializer->deserialize($bodyRequest,Post::class,'json',['Object_to_populate'=>$post]);
+        $serializer->deserialize($bodyRequest,Post::class,'json',['object_to_populate'=>$post]);
         $entityManager->flush();
         // Génerer la réponse
         return new Response(null,Response::HTTP_NO_CONTENT);
