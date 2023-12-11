@@ -77,4 +77,15 @@ class PostController extends AbstractController
         return new Response(null,204,["content-type"=>"application/json"]);
 
     }
+    #[Route('/posts/{id}',name: 'api_post_update',requirements: ['id'=>'\d+'],methods: ['PUT'])]
+    public function update(\Symfony\Component\HttpFoundation\Request $request,SerializerInterface $serializer,EntityManagerInterface $entityManager,int $id): Response
+    {
+        $bodyRequest=$request->getContent();
+        $post=$entityManager->find(Post::class,$id);
+        $serializer->deserialize($bodyRequest,Post::class,'json',['Object_to_populate'=>$post]);
+        $entityManager->flush();
+        // Génerer la réponse
+        return new Response(null,Response::HTTP_NO_CONTENT);
+
+    }
 }
