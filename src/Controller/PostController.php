@@ -2,7 +2,9 @@
 
 namespace App\Controller;
 
+use App\Entity\Post;
 use App\Repository\PostRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Mapping as ORM;
 use http\Env\Request;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -51,10 +53,17 @@ class PostController extends AbstractController
         );
     }
     #[Route('/posts',name: 'api_post_create',methods: ['POST'])]
-    public function create(\Symfony\Component\HttpFoundation\Request $request): Response
+    public function create(\Symfony\Component\HttpFoundation\Request $request,SerializerInterface $serializer,EntityManagerInterface $entityManager): Response
     {
         // Récupérer le body de la requete http au format json
         $bodyrequest=$request->getContent();
-        dd($bodyrequest);
+        $post=$serializer->deserialize($bodyrequest,Post::class,'json');
+        $post->setCreatedAt(new \DateTime());
+        $entityManager->persist($post);
+        $entityManager->flush();
+        // Génerer la réponse
+        $postJson=$serializer->serialize($post,'json');
+        return new Response($postJson,Response::HTTP_CREATED,["content-type"=>"application/json"]);
+
     }
 }
