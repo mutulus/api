@@ -4,15 +4,17 @@ namespace App\Controller;
 
 use App\Repository\PostRepository;
 use Doctrine\ORM\Mapping as ORM;
+use http\Env\Request;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use Symfony\Component\Serializer\SerializerInterface;
 
+#[Route('/api')]
 class PostController extends AbstractController
 {
-    #[Route('/api/posts', name: 'api_post_index', methods: ['GET'])]
+    #[Route('/posts', name: 'api_post_index', methods: ['GET'])]
     public function index(PostRepository $postRepository, SerializerInterface $serializer): Response
     {
         // Rechercher tous les posts dans le BDD
@@ -35,7 +37,7 @@ class PostController extends AbstractController
             ['content-type'=> 'application/json']
         );
     }
-    #[Route('/api/posts/{id}',name: 'api_post_show',requirements: ['id'=>'\d+'],methods: ['GET'])]
+    #[Route('/posts/{id}',name: 'api_post_show',requirements: ['id'=>'\d+'],methods: ['GET'])]
     public function show(PostRepository $postRepository, SerializerInterface $serializer,int $id): Response
     {
         // Rechercher tous les posts dans le BDD
@@ -47,5 +49,12 @@ class PostController extends AbstractController
         return new Response($postJson,Response::HTTP_OK,
             ['content-type'=> 'application/json']
         );
+    }
+    #[Route('/posts',name: 'api_post_create',methods: ['POST'])]
+    public function create(\Symfony\Component\HttpFoundation\Request $request): Response
+    {
+        // Récupérer le body de la requete http au format json
+        $bodyrequest=$request->getContent();
+        dd($bodyrequest);
     }
 }
