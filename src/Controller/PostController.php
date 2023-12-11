@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Repository\PostRepository;
+use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -34,11 +35,11 @@ class PostController extends AbstractController
             ['content-type'=> 'application/json']
         );
     }
-    #[Route('/api/posts/{id}',name: 'api_post_show',methods: ['GET'])]
-    public function show(PostRepository $postRepository, SerializerInterface $serializer): Response
+    #[Route('/api/posts/{id}',name: 'api_post_show',requirements: ['id'=>'\d+'],methods: ['GET'])]
+    public function show(PostRepository $postRepository, SerializerInterface $serializer,int $id): Response
     {
         // Rechercher tous les posts dans le BDD
-        $post = $postRepository->find('id');
+        $post = $postRepository->find($id);
 
         // Sérialiser le tableau de posts en json
         $postJson = $serializer->serialize($post, 'json');
