@@ -7,6 +7,7 @@ use App\Repository\PostRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Mapping as ORM;
 use http\Env\Request;
+use phpDocumentor\Reflection\DocBlock\Serializer;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -87,5 +88,16 @@ class PostController extends AbstractController
         // Génerer la réponse
         return new Response(null,Response::HTTP_NO_CONTENT);
 
+    }
+    #[Route('/posts/publies-apres',name: 'api_post_showAfterDate',methods: ['GET'])]
+    public function showAfterDate(\Symfony\Component\HttpFoundation\Request $request,PostRepository $postRepository,SerializerInterface $serializer):Response
+    {
+        // Récuperer la date dans la requête
+        $date=$request->query->get('date');
+        // Convertir la date en DateTime
+        $date=new \DateTime($date);
+        $posts=$postRepository->findByDateTallerThan($date);
+        $postsJson=$serializer->serialize($posts,'json');
+        return new Response($postsJson,Response::HTTP_OK,['content-type'=>'application/json']);
     }
 }

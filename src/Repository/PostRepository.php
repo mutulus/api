@@ -20,6 +20,16 @@ class PostRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, Post::class);
     }
+    public function findByDateTallerThan(\DateTime $date):array{
+
+        return $this->createQueryBuilder('p')
+            ->Where('p.created_at >= :date')
+            ->setParameter('date',$date)
+            ->orderBy('p.created_at','ASC')
+            ->getQuery()
+            ->getResult();
+
+    }
 
 //    /**
 //     * @return Post[] Returns an array of Post objects
