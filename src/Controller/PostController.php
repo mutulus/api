@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Post;
 use App\Repository\PostRepository;
+use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Mapping as ORM;
 use http\Env\Request;
@@ -36,12 +37,13 @@ class PostController extends AbstractController
 //        $reponse->headers->set('content-type', 'application/json');
 //        $reponse->setContent($postsJson);
 //        return $reponse;
-        return new Response($postsJson,Response::HTTP_OK,
-            ['content-type'=> 'application/json']
+        return new Response($postsJson, Response::HTTP_OK,
+            ['content-type' => 'application/json']
         );
     }
-    #[Route('/posts/{id}',name: 'api_post_show',requirements: ['id'=>'\d+'],methods: ['GET'])]
-    public function show(PostRepository $postRepository, SerializerInterface $serializer,int $id): Response
+
+    #[Route('/posts/{id}', name: 'api_post_show', requirements: ['id' => '\d+'], methods: ['GET'])]
+    public function show(PostRepository $postRepository, SerializerInterface $serializer, int $id): Response
     {
         // Rechercher tous les posts dans le BDD
         $post = $postRepository->find($id);
@@ -49,55 +51,59 @@ class PostController extends AbstractController
         // Sérialiser le tableau de posts en json
         $postJson = $serializer->serialize($post, 'json');
 
-        return new Response($postJson,Response::HTTP_OK,
-            ['content-type'=> 'application/json']
+        return new Response($postJson, Response::HTTP_OK,
+            ['content-type' => 'application/json']
         );
     }
-    #[Route('/posts',name: 'api_post_create',methods: ['POST'])]
-    public function create(\Symfony\Component\HttpFoundation\Request $request,SerializerInterface $serializer,EntityManagerInterface $entityManager): Response
+
+    #[Route('/posts', name: 'api_post_create', methods: ['POST'])]
+    public function create(\Symfony\Component\HttpFoundation\Request $request, SerializerInterface $serializer, EntityManagerInterface $entityManager): Response
     {
         // Récupérer le body de la requete http au format json
-        $bodyrequest=$request->getContent();
-        $post=$serializer->deserialize($bodyrequest,Post::class,'json');
-        $post->setCreatedAt(new \DateTime());
+        $bodyrequest = $request->getContent();
+        $post = $serializer->deserialize($bodyrequest, Post::class, 'json');
+        $post->setCreatedAt(new DateTime());
         $entityManager->persist($post);
         $entityManager->flush();
         // Génerer la réponse
-        $postJson=$serializer->serialize($post,'json');
-        return new Response($postJson,Response::HTTP_CREATED,["content-type"=>"application/json"]);
+        $postJson = $serializer->serialize($post, 'json');
+        return new Response($postJson, Response::HTTP_CREATED, ["content-type" => "application/json"]);
 
     }
-    #[Route('/posts/{id}',name: 'api_post_delete',requirements: ['id'=>'\d+'],methods: ['DELETE'])]
-    public function delete(\Symfony\Component\HttpFoundation\Request $request,SerializerInterface $serializer,EntityManagerInterface $entityManager,int $id): Response
+
+    #[Route('/posts/{id}', name: 'api_post_delete', requirements: ['id' => '\d+'], methods: ['DELETE'])]
+    public function delete(\Symfony\Component\HttpFoundation\Request $request, SerializerInterface $serializer, EntityManagerInterface $entityManager, int $id): Response
     {
-        $post=$entityManager->find(Post::class,$id);
+        $post = $entityManager->find(Post::class, $id);
         $entityManager->remove($post);
         $entityManager->flush();
         // Génerer la réponse
 
-        return new Response(null,204,["content-type"=>"application/json"]);
+        return new Response(null, 204, ["content-type" => "application/json"]);
 
     }
-    #[Route('/posts/{id}',name: 'api_post_update',requirements: ['id'=>'\d+'],methods: ['PUT'])]
-    public function update(\Symfony\Component\HttpFoundation\Request $request,SerializerInterface $serializer,EntityManagerInterface $entityManager,int $id): Response
+
+    #[Route('/posts/{id}', name: 'api_post_update', requirements: ['id' => '\d+'], methods: ['PUT'])]
+    public function update(\Symfony\Component\HttpFoundation\Request $request, SerializerInterface $serializer, EntityManagerInterface $entityManager, int $id): Response
     {
-        $bodyRequest=$request->getContent();
-        $post=$entityManager->find(Post::class,$id);
-        $serializer->deserialize($bodyRequest,Post::class,'json',['object_to_populate'=>$post]);
+        $bodyRequest = $request->getContent();
+        $post = $entityManager->find(Post::class, $id);
+        $serializer->deserialize($bodyRequest, Post::class, 'json', ['object_to_populate' => $post]);
         $entityManager->flush();
         // Génerer la réponse
-        return new Response(null,Response::HTTP_NO_CONTENT);
+        return new Response(null, Response::HTTP_NO_CONTENT);
 
     }
-    #[Route('/posts/publies-apres',name: 'api_post_showAfterDate',methods: ['GET'])]
-    public function showAfterDate(\Symfony\Component\HttpFoundation\Request $request,PostRepository $postRepository,SerializerInterface $serializer):Response
+
+    #[Route('/posts/publies-apres', name: 'api_post_showAfterDate', methods: ['GET'])]
+    public function showAfterDate(\Symfony\Component\HttpFoundation\Request $request, PostRepository $postRepository, SerializerInterface $serializer): Response
     {
         // Récuperer la date dans la requête
-        $date=$request->query->get('date');
+        $date = $request->query->get('date');
         // Convertir la date en DateTime
-        $date=new \DateTime($date);
-        $posts=$postRepository->findByDateTallerThan($date);
-        $postsJson=$serializer->serialize($posts,'json');
-        return new Response($postsJson,Response::HTTP_OK,['content-type'=>'application/json']);
+        $date = new DateTime($date);
+        $posts = $postRepository->findByDateTallerThan($date);
+        $postsJson = $serializer->serialize($posts, 'json');
+        return new Response($postsJson, Response::HTTP_OK, ['content-type' => 'application/json']);
     }
 }
